@@ -1,0 +1,41 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: henrique.zimermann@outlook.com.br
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - dns01:
+          cloudflare:
+            email: henrique.zimermann@outlook.com.br
+            apiTokenSecretRef:
+              name: cert-manager-token
+              key: api-token
+        selector:
+          dnsZones:
+            - "henriqzimer.com.br"
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: henrique.zimermann@outlook.com.br
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+      - dns01:
+          cloudflare:
+            email: henrique.zimermann@outlook.com.br
+            apiTokenSecretRef:
+              name: cert-manager-token
+              key: api-token
+        selector:
+          dnsZones:
+            - "henriqzimer.com.br"
