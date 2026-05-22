@@ -94,6 +94,11 @@ releases:
     namespace: kube-system
     values:
       - scheduling/proxmox-cloud-controller-manager/values.yaml
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args: ["apply", "-f", "scheduling/proxmox-cloud-controller-manager/manifests"]
 
   - name: hashicorp-vault
     namespace: secrets
@@ -186,3 +191,15 @@ releases:
   #   version: 4.4.1
   #   values:
   #     - development/k6-operator/values.yaml
+
+  - name: n8n
+    chart: oci://8gears.container-registry.com/library/n8n
+    version: 2.0.1
+    namespace: development
+    values:
+      - development/n8n/values.yaml
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: "kubectl"
+        args: ["apply", "-f", "development/n8n/manifests"]
