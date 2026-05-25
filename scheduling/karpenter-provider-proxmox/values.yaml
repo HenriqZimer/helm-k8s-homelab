@@ -268,7 +268,7 @@ customResources:
       kind: ProxmoxUnmanagedTemplate
       spec:
         region: arceus
-        templateName: "Karpenter"
+        templateName: "Talos-OS-Template"
         tags:
           - amd64
           - k8s
