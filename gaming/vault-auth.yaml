@@ -1,0 +1,11 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: default
+  namespace: gaming
+spec:
+  method: kubernetes
+  mount: kubernetes
+  kubernetes:
+    role: role-k8s-homelab
+    serviceAccount: default

@@ -212,7 +212,7 @@ customResources:
       # -- Cria a Proxmox Node Class com o nome 'proxmox'
       enabled: true
       spec:
-        region: arceus
+        region: pve
         bootDevice:
           storage: local-lvm
           size: 30Gi
@@ -252,7 +252,7 @@ customResources:
                 values: ["arceus"]
               - key: "topology.kubernetes.io/region"
                 operator: In
-                values: ["arceus"]
+                values: ["pve"]
             nodeClassRef:
               group: karpenter.proxmox.sinextra.dev
               kind: ProxmoxNodeClass
@@ -267,7 +267,7 @@ customResources:
       enabled: true
       kind: ProxmoxUnmanagedTemplate
       spec:
-        region: arceus
+        region: pve
         templateName: "Talos-OS-Template"
         tags:
           - amd64

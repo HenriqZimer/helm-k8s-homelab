@@ -8,7 +8,7 @@ image:
 imagePullSecrets: []
 
 nfs:
-  server: slowbro.henriqzimer.com.br
+  server: 192.168.1.102
   path: /mnt/slowbro/kubernetes
   mountOptions:
   volumeName: nfs-subdir-external-provisioner-root

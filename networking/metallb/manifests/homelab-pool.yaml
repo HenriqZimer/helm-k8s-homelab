@@ -5,10 +5,15 @@ metadata:
   namespace: networking
 spec:
   addresses:
-  - 192.168.1.150-192.168.1.155
+    - ${METALLB_ADDRESS_RANGE}
 ---
 apiVersion: metallb.io/v1beta1
 kind: L2Advertisement
 metadata:
   name: homelab-advertisement
   namespace: networking
+spec:
+  ipAddressPools:
+    - homelab-pool
+  interfaces:
+    - eth0

@@ -123,7 +123,7 @@ namespace:
   # type: boolean
   # @schema
   # namespace.create -- create the namespace (default: true)
-  create: true
+  create: false
 
 # @schema
 # required: false

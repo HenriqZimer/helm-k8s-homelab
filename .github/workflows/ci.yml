@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  helmfile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - name: Install helmfile
+        run: |
+          curl -sSL https://github.com/helmfile/helmfile/releases/download/v1.1.2/helmfile_1.1.2_linux_amd64.tar.gz \
+            | tar -xz -C /usr/local/bin helmfile
+          helmfile version
+
+      - name: helmfile lint
+        run: helmfile lint
+
+      - name: helmfile build
+        run: helmfile build
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: "./scripts"
+          severity: warning

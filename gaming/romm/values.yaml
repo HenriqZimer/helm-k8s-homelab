@@ -1,0 +1,202 @@
+# RomM - configurado para usar o Vault (secrets.enabled: false) em vez dos
+# secrets internos do chart. Os valores sensiveis (senhas, API keys) vem do
+# Secret "romm-credentials" (sincronizado do Vault via gaming/romm/manifests/
+# vault-secret.yaml); os nao-sensiveis (nomes de usuario/banco, porta) ficam
+# direto aqui, mesmo padrao usado nos outros apps deste repo.
+
+# -- Number of RomM replicas to start. Should be left at 1.
+replicaCount: 1
+
+# -- Number of old ReplicaSets to retain for rollback history.
+revisionHistoryLimit: 3
+
+# -- Image pull secrets to authenticate with private repositories.
+imagePullSecrets: []
+
+# -- Override the default name of the chart.
+nameOverride: ""
+# -- Override the default full name of the chart.
+fullnameOverride: ""
+
+# -- Annotations to add to the pod.
+podAnnotations: {}
+# -- Additional labels to add to the pod.
+podLabels: {}
+
+# -- Security context for the pod.
+podSecurityContext: {}
+
+# -- Security context for the container.
+securityContext: {}
+
+# -- Node selector for pod scheduling.
+nodeSelector: {}
+
+# -- Tolerations for pod scheduling.
+tolerations: []
+
+# -- Affinity rules for pod scheduling.
+affinity: {}
+
+# -- Secrets em modo externo: os valores sensiveis vem do Secret
+# "romm-credentials" (sincronizado do Vault) via romm.envFrom/mariadb.envFrom
+# abaixo, nao dos secrets internos do chart.
+secrets:
+  enabled: false
+
+# -- RomM application configuration
+romm:
+  # -- Container image configuration
+  image:
+    # -- Container image repository for RomM.
+    repository: docker.io/rommapp/romm
+    # -- RomM container image tag. Fixado na ultima estavel (nao a alpha).
+    tag: "4.5.0"
+    # -- Image pull policy (Always, IfNotPresent, or Never).
+    pullPolicy: IfNotPresent
+
+  # -- Resources requests and limits for RomM container.
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+
+  # -- Service configuration
+  service:
+    # -- Service type (ClusterIP, NodePort, or LoadBalancer).
+    type: ClusterIP
+    # -- Port for the RomM service.
+    port: 8080
+    # -- Name of the port in the service.
+    portName: http
+    # -- Annotations for the service.
+    annotations: {}
+    # -- Labels for the service.
+    labels: {}
+
+  # -- Ingress configuration.
+  ingress:
+    enabled: true
+    className: "traefik"
+    annotations: {}
+    hosts:
+      - host: romm.henriqzimer.com.br
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+
+  # -- Persistence configuration for RomM data
+  persistence:
+    # -- Configuration data (database connection, API keys, etc)
+    config:
+      enabled: true
+      type: pvc
+      hostPath: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      annotations: {}
+      storageClass: "nfs-slowbro"
+      existingClaim: ""
+
+    # -- ROM library storage
+    library:
+      enabled: true
+      type: pvc
+      hostPath: ""
+      accessMode: ReadWriteOnce
+      size: 100Gi
+      annotations: {}
+      storageClass: "nfs-slowbro"
+      existingClaim: ""
+
+    # -- Resources (cover images, screenshots, etc)
+    resources:
+      enabled: true
+      type: pvc
+      hostPath: ""
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      annotations: {}
+      storageClass: "nfs-slowbro"
+      existingClaim: ""
+
+    # -- Assets (EmulatorJS files, etc)
+    assets:
+      enabled: true
+      type: pvc
+      hostPath: ""
+      accessMode: ReadWriteOnce
+      size: 5Gi
+      annotations: {}
+      storageClass: "nfs-slowbro"
+      existingClaim: ""
+
+  # -- Valores nao-sensiveis (senhas/keys ficam no Secret romm-credentials via envFrom)
+  env:
+    - name: DB_PORT
+      value: "3306"
+    - name: DB_USER
+      value: "romm"
+    - name: DB_NAME
+      value: "romm"
+
+  # -- Carrega DB_PASSWD, ROMM_AUTH_SECRET_KEY e as API keys de metadata do
+  # Secret sincronizado do Vault.
+  envFrom:
+    - secretRef:
+        name: romm-credentials
+
+  # -- RomM Configuration File (config.yml) - nao usado por enquanto.
+  config:
+    enabled: false
+    name: romm-config-file
+    data: ""
+
+# -- MariaDB bundled (banco dedicado do RomM dentro do cluster).
+mariadb:
+  enabled: false
+
+  image:
+    repository: docker.io/mariadb
+    tag: "11"
+    pullPolicy: IfNotPresent
+
+  resources:
+    requests:
+      cpu: 300m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+  service:
+    type: ClusterIP
+    port: 3306
+
+  # -- Valores nao-sensiveis (senhas ficam no Secret romm-credentials via envFrom)
+  env:
+    - name: MYSQL_DATABASE
+      value: "romm"
+    - name: MYSQL_USER
+      value: "romm"
+
+  # -- Carrega MYSQL_PASSWORD e MYSQL_ROOT_PASSWORD do mesmo Secret usado
+  # pelo container do RomM (romm-credentials) - precisam ser os mesmos
+  # valores de DB_PASSWD para o RomM conseguir conectar.
+  envFrom:
+    - secretRef:
+        name: romm-credentials
+
+  persistence:
+    enabled: true
+    type: pvc
+    hostPath: ""
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+    storageClass: "nfs-slowbro"
+    existingClaim: ""

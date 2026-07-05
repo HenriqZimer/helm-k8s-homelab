@@ -273,6 +273,7 @@ speaker:
     mlSecretKeyPath: "/etc/ml_secret_key"
   excludeInterfaces:
     enabled: true
+    regexp: "^(tailscale|tailscale0|docker|cni|flannel|kube-ipvs|nodelocaldns|veth).*"
   # ignore the exclude-from-external-loadbalancer label
   ignoreExcludeLB: false
 
@@ -305,7 +306,13 @@ speaker:
       # cpu: 100m
       # memory: 100Mi
   nodeSelector: {}
-  tolerations: []
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
   priorityClassName: ""
   affinity: {}
   ## Selects which runtime class will be used by the pod.
@@ -333,7 +340,7 @@ speaker:
   # frr contains configuration specific to the MetalLB FRR container,
   # for speaker running alongside FRR.
   frr:
-    enabled: true
+    enabled: false
     image:
       repository: quay.io/frrouting/frr
       tag: 10.4.1

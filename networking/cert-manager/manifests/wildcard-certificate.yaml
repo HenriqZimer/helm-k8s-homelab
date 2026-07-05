@@ -1,24 +1,23 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: wildcard-henriqzimer.com.br
-  namespace: networking
+  name: wildcard-${CLUSTER_DOMAIN}
+  namespace: ${CERTIFICATE_NAMESPACE}
   labels:
     app.kubernetes.io/name: wildcard-certificate
     app.kubernetes.io/component: tls
     app.kubernetes.io/managed-by: helmfile
     environment: production
 spec:
-  secretName: wildcard-henriqzimer.com.br
+  secretName: wildcard-${CLUSTER_DOMAIN}
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer
     group: cert-manager.io
   dnsNames:
-    - '*.henriqzimer.com.br'
-    - 'henriqzimer.com.br'
+    - '*.${CLUSTER_DOMAIN}'
+    - '${CLUSTER_DOMAIN}'
   secretTemplate:
     labels:
       app.kubernetes.io/name: wildcard-certificate
       app.kubernetes.io/component: tls
-

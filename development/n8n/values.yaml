@@ -16,7 +16,7 @@ image:
   repository: n8nio/n8n
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "next"
 imagePullSecrets: []
 
 # The Name to use for the chart. Will be the prefix of all resources aka. The Chart.Name (default is 'n8n')
@@ -73,8 +73,12 @@ main:
 
   # Extra environmental variables, so you can reference other configmaps and secrets into n8n as env vars.
   extraEnv:
-    # N8N_PORT:
-    #   value: "5678"
+    # Kubernetes injeta automaticamente N8N_PORT=tcp://<clusterIP>:80 (convencao
+    # <SERVICE>_PORT do Service "n8n" no mesmo namespace), o que colide com o
+    # N8N_PORT que o proprio n8n espera ser um numero de porta. Declarar aqui
+    # explicitamente sobrescreve a env var auto-injetada.
+    N8N_PORT:
+      value: "5678"
     DB_POSTGRESDB_HOST:
       valueFrom:
         secretKeyRef:
@@ -105,6 +109,22 @@ main:
         secretKeyRef:
           name: n8n-credentials
           key: encryption_key
+    N8N_HOST:
+      value: n8n.henriqzimer.com.br
+    N8N_PROTOCOL:
+      value: "https"
+    N8N_EDITOR_BASE_URL:
+      value: https://n8n.henriqzimer.com.br
+    WEBHOOK_URL:
+      value: https://n8n.henriqzimer.com.br/
+    N8N_PROXY_HOPS:
+      value: "1"
+    N8N_SECURE_COOKIE:
+      value: "true"
+    N8N_MCP_MANAGED_BY_ENV:
+      value: "true"
+    N8N_MCP_ACCESS_ENABLED:
+      value: "true"
   #    N8N_DB_POSTGRESDB_NAME:
   #      valueFrom:
   #        secretKeyRef:
